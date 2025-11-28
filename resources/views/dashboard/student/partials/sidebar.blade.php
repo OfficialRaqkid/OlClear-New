@@ -2,7 +2,7 @@
     <div class="component-item">
         <label>Navigation</label>
         <nav class="nav flex-column">
-            <a href="" class="nav-link {{ request()->routeIs('student.dashboard') ? 'active' : '' }}">
+            <a href="{{ route('student.dashboard') }}"  class="nav-link {{ request()->routeIs('student.dashboard') ? 'active' : '' }}">
                 <i class="typcn typcn-home"></i> Dashboard
             </a>
             <a href="" class="nav-link {{ request()->routeIs('student.request-clearance') ? 'active' : '' }}">

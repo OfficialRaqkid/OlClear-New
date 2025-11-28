@@ -8,13 +8,13 @@
         <div class="az-header-menu">
             <ul class="nav">
                 <li class="nav-item active">
-                    <a href="" class="nav-link">
+                    <a href="{{ route('vp_sas.dashboard') }}" class="nav-link">
                         <i class="typcn typcn-home-outline"></i> Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="" class="nav-link">
-                        <i class="typcn typcn-user-check"></i> Verify Students
+                    <a href="{{ route('vp_sas.clearances.index') }}"  class="nav-link">
+                <i class="typcn typcn-document-add"></i> Sign Requests
                     </a>
                 </li>
                 <li class="nav-item">

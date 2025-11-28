@@ -1,16 +1,17 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
+// Auth Controllers
 use App\Http\Controllers\Auth\SigninUserContoroller;
+use App\Http\Controllers\Auth\SignupUserContoroller;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\SignupUserContoroller;
-use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
     Route::get('/signin', [SigninUserContoroller::class, 'index'])->name('login.student');
@@ -19,10 +20,10 @@ Route::middleware('guest')->group(function () {
     Route::get('/signup', [SignupUserContoroller::class, 'index'])->name('register.student');
     Route::post('/signup', [SignupUserContoroller::class, 'store'])->name('register.student.submit');
 
-
-    Route::get('/get-programs/{department}', [ProgramController::class, 'getPrograms'])
-    ->name('get.programs');
+    // only include if ProgramController exists
+    Route::get('/get-programs/{department}', [ProgramController::class, 'getPrograms'])->name('get.programs');
 });
+
 
 // Route::middleware('guest')->group(function () {
 //     Route::get('register', [RegisteredUserController::class, 'create'])

@@ -5,28 +5,29 @@
     footer="dashboard.student.partials.footer">
 
     <!-- 📘 Page Header -->
+     <!-- Page Title -->
     <div class="az-dashboard-one-title mb-4">
         <div>
-            <h2 class="az-dashboard-title">Business Office Clearance Requests</h2>
-            <p class="az-dashboard-text">View, sign, or hold student financial clearance requests below.</p>
+            <h2 class="az-dashboard-title">Library Clearance Requests</h2>
+            <p class="az-dashboard-text">Manage and review student library clearance requests below.</p>
         </div>
     </div>
 
-    <!-- ✅ Flash Messages -->
-    @if(session('success'))
+    <!-- Flash Messages -->
+    @if (session('success'))
         <div class="alert alert-success shadow-sm">{{ session('success') }}</div>
     @endif
 
-    @if(session('warning'))
+    @if (session('warning'))
         <div class="alert alert-warning shadow-sm">{{ session('warning') }}</div>
     @endif
 
-    <!-- 📋 Table Section -->
+    <!-- Table Section -->
     <div class="card shadow-sm border-0 mt-3">
         <div class="card-body p-0">
             @if ($requests->isEmpty())
                 <div class="text-center py-5 text-muted">
-                    No clearance requests found.
+                    No library clearance requests found.
                 </div>
             @else
                 <table class="table table-hover align-middle mb-0">
@@ -57,18 +58,14 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <form action="{{ route('business_office.clearance_requests.accept', $req->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('business_office.clearances.accept', $req->id) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <button type="submit" class="btn btn-success btn-sm px-3">
-                                            <i class="typcn typcn-tick-outline"></i> Sign
-                                        </button>
+                                        <button type="submit" class="btn btn-success btn-sm px-3">Accept</button>
                                     </form>
 
-                                    <form action="{{ route('business_office.clearance_requests.hold', $req->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('library_in_charge.clearances.hold', $req->id) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <button type="submit" class="btn btn-warning btn-sm px-3">
-                                            <i class="typcn typcn-watch"></i> Hold
-                                        </button>
+                                        <button type="submit" class="btn btn-warning btn-sm px-3">Hold</button>
                                     </form>
                                 </td>
                             </tr>

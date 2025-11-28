@@ -4,7 +4,6 @@
     navbar="dashboard.library_in_charge.partials.navbar"
     footer="dashboard.student.partials.footer">
 
-    <!-- Page Title -->
     <div class="az-dashboard-one-title mb-4">
         <div>
             <h2 class="az-dashboard-title">Library Clearance Requests</h2>
@@ -12,7 +11,6 @@
         </div>
     </div>
 
-    <!-- Flash Messages -->
     @if (session('success'))
         <div class="alert alert-success shadow-sm">{{ session('success') }}</div>
     @endif
@@ -21,7 +19,6 @@
         <div class="alert alert-warning shadow-sm">{{ session('warning') }}</div>
     @endif
 
-    <!-- Table Section -->
     <div class="card shadow-sm border-0 mt-3">
         <div class="card-body p-0">
             @if ($requests->isEmpty())
@@ -40,39 +37,89 @@
                             <th class="text-center">Actions</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         @foreach ($requests as $key => $req)
                             <tr>
                                 <td>{{ $key + 1 }}</td>
-                                <td>{{ $req->student->first_name ?? 'N/A' }} {{ $req->student->last_name ?? '' }}</td>
-                                <td>{{ $req->student->program->name ?? 'N/A' }}</td>
-                                <td>{{ $req->student->yearLevel->name ?? 'N/A' }}</td>
+                                <td>{{ $req->student->first_name }} {{ $req->student->last_name }}</td>
+                                <td>{{ $req->student->program->name }}</td>
+                                <td>{{ $req->student->yearLevel->name }}</td>
+
                                 <td>
                                     <span class="badge 
-                                        @if($req->status == 'pending') bg-warning 
-                                        @elseif($req->status == 'accepted') bg-success 
-                                        @elseif($req->status == 'held') bg-danger 
+                                        @if($req->status == 'pending') bg-warning
+                                        @elseif($req->status == 'accepted') bg-success
+                                        @elseif($req->status == 'held') bg-danger
                                         @else bg-secondary @endif">
                                         {{ ucfirst($req->status) }}
                                     </span>
                                 </td>
+
                                 <td class="text-center">
+
+                                    {{-- Accept --}}
                                     <form action="{{ route('library_in_charge.clearances.accept', $req->id) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <button type="submit" class="btn btn-success btn-sm px-3">Accept</button>
+                                        <button type="submit" class="btn btn-success btn-sm px-3">Sign</button>
                                     </form>
 
-                                    <form action="{{ route('library_in_charge.clearances.hold', $req->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-warning btn-sm px-3">Hold</button>
-                                    </form>
+                                    {{-- Hold --}}
+                                    <button 
+                                        type="button"
+                                        class="btn btn-warning btn-sm px-3"
+                                        data-toggle="modal"
+                                        data-target="#holdModal"
+                                        data-id="{{ $req->id }}">
+                                        Hold
+                                    </button>
+
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
+
                 </table>
             @endif
         </div>
     </div>
+
+    <!-- Hold Modal -->
+    <div class="modal fade" id="holdModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Hold Clearance Request</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <form method="POST" id="holdForm">
+                    @csrf
+                    <div class="modal-body">
+                        <label class="form-label">Reason for Hold</label>
+                        <textarea name="hold_reason" class="form-control" required></textarea>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning">Submit Hold</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    {{-- JS for dynamic form action --}}
+    <script>
+        $('#holdModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+            var requestId = button.data('id');
+            
+            // Update form action dynamically
+            $('#holdForm').attr('action', '/library_in_charge/clearance-requests/' + requestId + '/hold');
+        });
+    </script>
 
 </x-master-layout>

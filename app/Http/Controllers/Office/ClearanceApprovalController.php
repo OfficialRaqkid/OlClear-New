@@ -9,41 +9,43 @@ use App\Models\ClearanceRequest;
 class ClearanceApprovalController extends Controller
 {
     /**
-     * 🏛️ BUSINESS OFFICE — (Initial Posting)
+     * 🏛️ BUSINESS OFFICE — View all requests
      */
     public function businessOfficeIndex()
     {
         $requests = ClearanceRequest::with(['student.program', 'student.yearLevel'])
             ->where('current_office', 'business_office')
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending', 'accepted', 'held'])
             ->get();
 
         return view('dashboard.business_office.clearance_requests.index', compact('requests'));
     }
 
     /**
-     * ✅ BUSINESS OFFICE — Accept and send to Library
+     * ✅ BUSINESS OFFICE — Accept and complete clearance
      */
     public function businessOfficeAccept($id)
     {
         $request = ClearanceRequest::findOrFail($id);
-        $request->status = 'accepted';
-        $request->current_office = 'library_in_charge'; // Next in line
+
+        $request->status = 'completed';
+        $request->current_office = null;
         $request->save();
 
-        return redirect()->back()->with('success', 'Request approved and sent to Library.');
+        return redirect()->back()->with('success', 'Clearance fully signed and completed by Business Office!');
     }
 
     /**
      * ⏸️ BUSINESS OFFICE — Hold
      */
-    public function businessOfficeHold($id)
+    public function businessOfficeHold(Request $req, $id)
     {
         $request = ClearanceRequest::findOrFail($id);
         $request->status = 'held';
+        $request->hold_reason = $req->hold_reason;
         $request->save();
 
-        return redirect()->back()->with('warning', 'Request put on hold.');
+        return redirect()->back()->with('warning', 'Request put on hold by Business Office.');
     }
 
     /**
@@ -62,16 +64,17 @@ class ClearanceApprovalController extends Controller
     {
         $request = ClearanceRequest::findOrFail($id);
         $request->status = 'accepted';
-        $request->current_office = 'dean'; // Next in line
+        $request->current_office = 'dean';
         $request->save();
 
         return redirect()->back()->with('success', 'Request approved and sent to Dean.');
     }
 
-    public function libraryHold($id)
+    public function libraryHold(Request $req, $id)
     {
         $request = ClearanceRequest::findOrFail($id);
         $request->status = 'held';
+        $request->hold_reason = $req->hold_reason;
         $request->save();
 
         return redirect()->back()->with('warning', 'Request put on hold.');
@@ -101,16 +104,17 @@ class ClearanceApprovalController extends Controller
     {
         $request = ClearanceRequest::findOrFail($id);
         $request->status = 'accepted';
-        $request->current_office = 'vp_sas'; // Next in line
+        $request->current_office = 'vp_sas';
         $request->save();
 
         return redirect()->back()->with('success', 'Request approved and sent to VP-SAS.');
     }
 
-    public function deanHold($id)
+    public function deanHold(Request $req, $id)
     {
         $request = ClearanceRequest::findOrFail($id);
         $request->status = 'held';
+        $request->hold_reason = $req->hold_reason;
         $request->save();
 
         return redirect()->back()->with('warning', 'Request put on hold.');
@@ -132,50 +136,32 @@ class ClearanceApprovalController extends Controller
     {
         $request = ClearanceRequest::findOrFail($id);
         $request->status = 'accepted';
-        $request->current_office = 'business_office'; // ✅ Final stop (renamed)
+        $request->current_office = 'business_office';
         $request->save();
 
-        return redirect()->back()->with('success', 'Request approved and sent to Business Office for final signing.');
+        return redirect()->back()->with('success', 'Request approved and sent to Business Office for final completion.');
     }
 
-    public function vpSasHold($id)
+    public function vpSasHold(Request $req, $id)
     {
         $request = ClearanceRequest::findOrFail($id);
         $request->status = 'held';
+        $request->hold_reason = $req->hold_reason;
         $request->save();
 
         return redirect()->back()->with('warning', 'Request put on hold.');
     }
 
     /**
-     * 🏁 FINAL BUSINESS OFFICE SIGNING — Completes the clearance
+     * 📊 BUSINESS OFFICE — Completed Clearances
      */
-    public function finalBusinessOfficeIndex()
+    public function completedClearancesIndex()
     {
-        $requests = ClearanceRequest::with(['student.program', 'student.yearLevel'])
-            ->where('current_office', 'business_office') // ✅ fixed
-            ->whereIn('status', ['pending', 'accepted', 'held'])
+        $completedRequests = ClearanceRequest::with(['student.program', 'student.yearLevel'])
+            ->where('status', 'completed')
+            ->orderByDesc('updated_at')
             ->get();
 
-        return view('dashboard.business_office.clearance_requests.final', compact('requests'));
-    }
-
-    public function finalBusinessOfficeAccept($id)
-    {
-        $request = ClearanceRequest::findOrFail($id);
-        $request->status = 'completed';
-        $request->current_office = null; // ✅ Completed
-        $request->save();
-
-        return redirect()->back()->with('success', 'Clearance fully completed by Business Office!');
-    }
-
-    public function finalBusinessOfficeHold($id)
-    {
-        $request = ClearanceRequest::findOrFail($id);
-        $request->status = 'held';
-        $request->save();
-
-        return redirect()->back()->with('warning', 'Request put on hold by Business Office.');
+        return view('dashboard.business_office.clearance_requests.completed', compact('completedRequests'));
     }
 }

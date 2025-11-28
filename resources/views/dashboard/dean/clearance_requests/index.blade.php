@@ -64,7 +64,16 @@
 
                                     <form action="{{ route('dean.clearances.hold', $req->id) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <button type="submit" class="btn btn-warning btn-sm px-3">Hold</button>
+                                        <button 
+    type="button" 
+    class="btn btn-warning btn-sm px-3"
+    data-toggle="modal"
+    data-target="#holdModal"
+    data-id="{{ $req->id }}"
+>
+    Hold
+</button>
+
                                     </form>
                                 </td>
                             </tr>
@@ -74,5 +83,45 @@
             @endif
         </div>
     </div>
+    <!-- Hold Modal -->
+<div class="modal fade" id="holdModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Hold Clearance Request</h5>
+                <button type="button" class="btn-close" data-dismiss="modal"></button>
+            </div>
+
+            <form method="POST" id="holdForm">
+                @csrf
+                <div class="modal-body">
+                    <label class="form-label">Reason for Hold</label>
+                    <textarea name="hold_reason" class="form-control" required></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Submit Hold</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const holdModal = document.getElementById('holdModal');
+
+    holdModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const id = button.getAttribute('data-id');
+        const form = document.getElementById('holdForm');
+
+        form.action = "{{ url('dean/clearance-requests') }}/" + id + "/hold";
+    });
+});
+</script>
+
 
 </x-master-layout>

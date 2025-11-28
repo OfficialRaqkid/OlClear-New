@@ -2,7 +2,7 @@
     <div class="component-item">
         <label>Student Affairs</label>
         <nav class="nav flex-column">
-            <a href="" class="nav-link {{ request()->routeIs('vp_sad.dashboard') ? 'active' : '' }}">
+            <a href="{{ route('vp_sas.dashboard') }}" class="nav-link {{ request()->routeIs('vp_sas.dashboard') ? 'active' : '' }}">
                 <i class="typcn typcn-home-outline"></i> Dashboard
             </a>
             <a href="{{ route('vp_sas.clearances.index') }}" 

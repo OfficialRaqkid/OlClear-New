@@ -28,6 +28,7 @@ class Kernel extends HttpKernel
         'auth' => \App\Http\Middleware\Authenticate::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'student' => \App\Http\Middleware\StudentMiddleware::class,
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
     ];
 
 

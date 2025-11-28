@@ -8,23 +8,23 @@
         <div class="az-header-menu">
             <ul class="nav">
                 <li class="nav-item active">
-                    <a href="" class="nav-link">
+                    <a href="{{ route('business_office.dashboard') }}"  class="nav-link">
                         <i class="typcn typcn-home-outline"></i> Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="" class="nav-link">
+                    <a href="{{ route('business_office.clearance_requests.index') }}" class="nav-link">
                         <i class="typcn typcn-document-add"></i> Sign Requests
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="" class="nav-link">
-                        <i class="typcn typcn-time"></i> Clearance History
+                    <a href="{{ route('business_office.clearances.index') }}"  class="nav-link">
+                        <i class="typcn typcn-folder"></i> Manage Clearances
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="" class="nav-link">
-                        <i class="typcn typcn-chart-bar-outline"></i> Department Reports
+                    <a href="{{ route('business_office.reports.completed') }}" class="nav-link">
+                        <i class="typcn typcn-chart-bar-outline"></i> Reports
                     </a>
                 </li>
             </ul>
@@ -46,7 +46,7 @@
                     <div class="az-header-profile">
                         <div class="az-img-user"><img src="{{ asset('img/faces/face1.jpg') }}" alt=""></div>
                         <h6></h6>
-                        <span>Dean / Chairperson</span>
+                        <span>Business Office</span>
                     </div>
                     <a href="" class="dropdown-item"><i class="typcn typcn-user-outline"></i> My Profile</a>
                 <a href="{{ route('logout.admin') }}" class="dropdown-item"

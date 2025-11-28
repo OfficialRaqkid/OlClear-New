@@ -2,7 +2,7 @@
     <div class="component-item">
         <label>Dean Menu</label>
         <nav class="nav flex-column">
-            <a href="" class="nav-link {{ request()->routeIs('dean.dashboard') ? 'active' : '' }}">
+            <a href="{{ route('library_in_charge.dashboard') }}" class="nav-link {{ request()->routeIs('library_in_charge.dashboard') ? 'active' : '' }}">
                 <i class="typcn typcn-home"></i> Dashboard
             </a>
             <a href="{{ route('library_in_charge.clearances.index') }}" 

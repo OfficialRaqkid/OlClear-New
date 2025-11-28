@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -22,55 +21,37 @@ class SigninUserContoroller extends Controller
             'password' => 'required|string',
         ]);
 
+        // attempt to find user by username
         $user = User::where('username', $request->username)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return back()->withErrors([
-                'login' => 'Invalid username or password.',
-            ])->withInput();
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            return back()->withErrors(['login' => 'Invalid username or password'])->withInput();
         }
 
-        if (!$user->is_active) {
-            return back()->withErrors([
-                'login' => 'You are not allowed to login. Please contact admin.',
-            ])->withInput();
+        if (! $user->is_active) {
+            return back()->withErrors(['login' => 'Your account is inactive.'])->withInput();
         }
 
+        // login (web guard)
         Auth::login($user);
 
-    
+        // redirect based on role_id — adjust mapping if your roles differ
         switch ($user->role_id) {
-    case 1:  
-        return redirect()->route('admin.dashboard');
-
-    case 2: 
-        return redirect()->route('library_in_charge.dashboard'); 
-
-    case 3:
-        return redirect()->route('dean.dashboard');
-
-    case 4:
-        return redirect()->route('vp_sas.dashboard');
-
-    case 5:
-        return redirect()->route('business_office.dashboard');
-
-    case 6:
-        return redirect()->route('student.dashboard');
-
+            case 1: return redirect()->route('admin.dashboard');
+            case 2: return redirect()->route('library_in_charge.dashboard');
+            case 3: return redirect()->route('dean.dashboard');
+            case 4: return redirect()->route('vp_sas.dashboard');
+            case 5: return redirect()->route('business_office.dashboard');
+            case 6: return redirect()->route('student.dashboard');
             default:
                 Auth::logout();
-                return back()->withErrors([
-                    'login' => 'Your role is not authorized to access this portal.',
-                ]);
+                return back()->withErrors(['login' => 'Role not allowed.']);
         }
-
     }
 
     public function destroy(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

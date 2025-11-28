@@ -7,7 +7,7 @@ use App\Http\Controllers\Student\ProfileController;
 use App\Http\Controllers\Auth\SigninUserContoroller;
 
 Route::prefix('student')
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth']) // ✅ Use student guard middleware
     ->name('student.')
     ->group(function () {
 

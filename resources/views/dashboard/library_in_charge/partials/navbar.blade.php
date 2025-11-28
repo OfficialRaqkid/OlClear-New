@@ -8,12 +8,12 @@
         <div class="az-header-menu">
             <ul class="nav">
                 <li class="nav-item active">
-                    <a href="" class="nav-link">
+                    <a href="{{ route('library_in_charge.dashboard') }}" class="nav-link">
                         <i class="typcn typcn-home-outline"></i> Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="" class="nav-link">
+                    <a href="{{ route('library_in_charge.clearances.index') }}"  class="nav-link">
                         <i class="typcn typcn-document-add"></i> Sign Requests
                     </a>
                 </li>
@@ -46,7 +46,7 @@
                     <div class="az-header-profile">
                         <div class="az-img-user"><img src="{{ asset('img/faces/face1.jpg') }}" alt=""></div>
                         <h6></h6>
-                        <span>Dean / Chairperson</span>
+                        <span>Librarian</span>
                     </div>
                     <a href="" class="dropdown-item"><i class="typcn typcn-user-outline"></i> My Profile</a>
                 <a href="{{ route('logout.admin') }}" class="dropdown-item"
