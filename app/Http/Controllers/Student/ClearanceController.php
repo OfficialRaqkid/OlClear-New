@@ -9,45 +9,68 @@ use Illuminate\Http\Request;
 
 class ClearanceController extends Controller
 {
-    public function index()
-    {
-        $clearances = Clearance::where('is_published', true)
-            ->where('is_active', true)
-            ->whereHas('clearanceType', function ($query) {
-                $query->where('name', 'Financial Clearance');
-            })
-            ->latest()
-            ->get();
+public function index()
+{
+    $student = auth()->user()->studentProfile;
 
-        return view('dashboard.student.clearances.index', compact('clearances'));
-    }
+    $clearances = Clearance::where('is_published', true)
+        ->where('is_active', true)
+        ->where(function ($q) use ($student) {
+
+            // Financial (everyone sees this)
+            $q->whereHas('clearanceType', function ($type) {
+                $type->where('name', 'Financial Clearance');
+            });
+
+            // Departmental (only same department)
+            $q->orWhere(function ($d) use ($student) {
+                $d->whereHas('clearanceType', function ($type) {
+                    $type->where('name', 'Departmental Clearance');
+                })
+                ->where('department_id', $student->department_id);
+            });
+        })
+        ->latest()
+        ->get();
+
+    return view('dashboard.student.clearances.index', compact('clearances'));
+}
+
 
     public function requestClearance($id)
-    {
-        $student = auth()->user();
+{
+    $student = auth()->user();
 
-        if (!$student->studentProfile) {
-            return redirect()->back()->with('error', 'No student profile found for your account.');
-        }
-
-        // 🔍 Check if a request already exists for this clearance
-        $existingRequest = ClearanceRequest::where('student_id', $student->studentProfile->id)
-            ->where('clearance_id', $id)
-            ->whereIn('status', ['pending', 'accepted', 'held', 'completed']) // any active or finished request
-            ->first();
-
-        if ($existingRequest) {
-            return redirect()->back()->with('warning', 'You have already submitted this clearance request.');
-        }
-
-        // ✅ Create new clearance request if none exists
-        ClearanceRequest::create([
-            'student_id' => $student->studentProfile->id,
-            'clearance_id' => $id,
-            'status' => 'pending',
-            'current_office' => 'library_in_charge',
-        ]);
-
-        return redirect()->back()->with('success', 'Your clearance request has been submitted!');
+    if (!$student->studentProfile) {
+        return redirect()->back()->with('error', 'No student profile found for your account.');
     }
+
+    $clearance = Clearance::findOrFail($id);
+
+    // Prevent duplicate requests
+    $existingRequest = ClearanceRequest::where('student_id', $student->studentProfile->id)
+        ->where('clearance_id', $id)
+        ->whereIn('status', ['pending', 'accepted', 'held', 'completed'])
+        ->first();
+
+    if ($existingRequest) {
+        return redirect()->back()->with('warning', 'You have already submitted this clearance request.');
+    }
+
+    // Determine the FIRST office
+    if ($clearance->clearanceType->name === 'Departmental Clearance') {
+        $firstOffice = 'dean'; // 👍 Dean first
+    } else {
+        $firstOffice = 'library_in_charge'; // 👍 Financial goes to Library
+    }
+
+    ClearanceRequest::create([
+        'student_id' => $student->studentProfile->id,
+        'clearance_id' => $id,
+        'status' => 'pending',
+        'current_office' => $firstOffice, // 🔥 Correct starting office
+    ]);
+
+    return redirect()->back()->with('success', 'Your clearance request has been submitted!');
+}
 }

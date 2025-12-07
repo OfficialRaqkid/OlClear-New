@@ -13,8 +13,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="" class="nav-link">
+                    <a href="{{ route('dean.clearance_requests.index') }}"  class="nav-link">
                         <i class="typcn typcn-document-add"></i> Sign Requests
+                    </a>
+                </li>
+                                <li class="nav-item">
+                    <a href="{{ route('dean.clearances.index') }}"  class="nav-link">
+                        <i class="typcn typcn-folder"></i> Manage Clearances
                     </a>
                 </li>
                 <li class="nav-item">

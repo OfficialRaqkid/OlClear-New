@@ -100,15 +100,25 @@ class ClearanceApprovalController extends Controller
         return view('dashboard.dean.clearance_requests.index', compact('requests'));
     }
 
-    public function deanAccept($id)
-    {
-        $request = ClearanceRequest::findOrFail($id);
-        $request->status = 'accepted';
-        $request->current_office = 'vp_sas';
-        $request->save();
+public function deanAccept($id)
+{
+    $request = ClearanceRequest::findOrFail($id);
 
-        return redirect()->back()->with('success', 'Request approved and sent to VP-SAS.');
+    $clearanceType = $request->clearance->clearanceType->name;
+
+    if ($clearanceType === 'Departmental Clearance') {
+        $request->status = 'completed'; // ✅ mark as done
+        $request->current_office = null; // no further office
+    } elseif ($clearanceType === 'Financial Clearance') {
+        $request->status = 'accepted';
+        $request->current_office = 'vp_sas'; // forward to VP-SAS
     }
+
+    $request->save();
+
+    return redirect()->back()->with('success', 'Request approved successfully.');
+}
+
 
     public function deanHold(Request $req, $id)
     {

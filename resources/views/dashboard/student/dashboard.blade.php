@@ -13,71 +13,79 @@
         </div>
     </div>
 
-    <div class="row row-sm mg-b-20">
+<div class="row row-sm mg-b-20">
 
-        {{-- Clearance Status --}}
-        @if ($latestClearance && in_array(strtolower($latestClearance->status), ['pending', 'accepted', 'held']))
-            <div class="col-lg-4">
-                <div class="card card-dashboard-calendar">
-                    <h6 class="card-title">Clearance Status</h6>
-                    <div class="card-body">
+    {{-- Clearance Status --}}
+    @if ($latestClearance)
+        <div class="col-lg-4">
+            <div class="card card-dashboard-calendar">
+                <h6 class="card-title">Clearance Status</h6>
+                <div class="card-body">
 
-                        <p class="mg-b-5">Latest Request:</p>
+                    <p class="mg-b-5">Latest Request:</p>
 
-                        @php
-                            $status = strtolower($latestClearance->status);
-                            $isPending = in_array($status, ['pending', 'accepted']) 
-                                && !empty($latestClearance->current_office);
-                        @endphp
+                    @php
+                        $status = strtolower($latestClearance->status);
+                        $isPending = in_array($status, ['pending', 'accepted']) 
+                            && !empty($latestClearance->current_office);
+                    @endphp
 
-                        <h5 class="text-{{ 
-                            $status === 'held' ? 'danger' : 
-                            ($isPending ? 'warning' : 'success') 
-                        }}">
-                            @if ($status === 'held')
-                                On Hold
-                            @elseif ($isPending)
-                                Pending at {{ ucfirst($latestClearance->current_office) }}
-                            @else
-                                {{ ucfirst($latestClearance->status) }}
-                            @endif
-                        </h5>
-
-                        <p class="tx-12 text-muted">
-                            Last updated: {{ $latestClearance->updated_at->format('M d, Y h:i A') }}
-                        </p>
-
-                        <p>
-                            <strong>Current Office:</strong>
-                            {{ ucfirst($latestClearance->current_office ?? 'N/A') }}
-                        </p>
-
-                        {{-- Show hold reason --}}
-                        @if ($status === 'held' && !empty($latestClearance->hold_reason))
-                            <div class="alert alert-warning mt-2">
-                                <strong>Reason for Hold:</strong><br>
-                                {{ $latestClearance->hold_reason }}
-                            </div>
+                    <h5 class="text-{{ 
+                        $status === 'held' ? 'danger' : 
+                        ($status === 'completed' ? 'success' : ($isPending ? 'warning' : 'secondary')) 
+                    }}">
+                        @if ($status === 'held')
+                            On Hold
+                        @elseif ($status === 'completed')
+                            Completed
+                        @elseif ($isPending)
+                            Pending at {{ ucfirst($latestClearance->current_office ?? 'N/A') }}
+                        @else
+                            {{ ucfirst($latestClearance->status) }}
                         @endif
+                    </h5>
 
-                        <a href="#" class="btn btn-sm btn-outline-primary mt-2">View Details</a>
+                    <p class="tx-12 text-muted">
+                        Last updated: {{ $latestClearance->updated_at->format('M d, Y h:i A') }}
+                    </p>
 
-                    </div>
+                    <p>
+                        <strong>Current Office:</strong>
+                        {{ ucfirst($latestClearance->current_office ?? 'N/A') }}
+                    </p>
+
+                    {{-- Show hold reason --}}
+                    @if ($status === 'held' && !empty($latestClearance->hold_reason))
+                        <div class="alert alert-warning mt-2">
+                            <strong>Reason for Hold:</strong><br>
+                            {{ $latestClearance->hold_reason }}
+                        </div>
+                    @endif
+
+                    {{-- View Details Button always visible --}}
+                    <a href="{{ route('student.clearances.index', $latestClearance->id) }}" 
+                       class="btn btn-sm btn-outline-primary mt-2">
+                        View Details
+                    </a>
+
                 </div>
             </div>
+        </div>
 
-        @else
-            {{-- NO REQUEST — Show this box only when student has no clearance --}}
-            <div class="col-lg-4">
-                <div class="card card-dashboard-calendar">
-                    <h6 class="card-title">Clearance Status</h6>
-                    <div class="card-body">
-                        <p class="mg-b-5">No clearance request found.</p>
-                        <a href="#" class="btn btn-sm btn-outline-primary">Request Clearance</a>
-                    </div>
+    @else
+        {{-- NO REQUEST — Show this box only when student has no clearance --}}
+        <div class="col-lg-4">
+            <div class="card card-dashboard-calendar">
+                <h6 class="card-title">Clearance Status</h6>
+                <div class="card-body">
+                    <p class="mg-b-5">No clearance request found.</p>
+                    <a href="{{ route('student.clearances.index') }}" class="btn btn-sm btn-outline-primary">Request Clearance</a>
                 </div>
             </div>
-        @endif
+        </div>
+    @endif
+</div>
+
 
 
         {{-- Profile Quick Info --}}

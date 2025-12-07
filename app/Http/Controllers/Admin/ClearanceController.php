@@ -36,31 +36,43 @@ class ClearanceController extends Controller
         return view('dashboard.admin.clearances.create', compact('offices', 'clearanceTypes'));
     }
 
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'clearance_type_id' => 'required|exists:clearance_types,id', // ✅ linked to dropdown
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'offices' => 'required|array|min:1',
-            'offices.*' => 'string|in:business_office,dean,vp_sas,library_in_charge',
-            'is_published' => 'nullable|boolean',
-        ]);
+   public function store(Request $request)
+{
+    $data = $request->validate([
+        'clearance_type_id' => 'required|exists:clearance_types,id',
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'offices' => 'required|array|min:1',
+        'offices.*' => 'string|in:business_office,dean,vp_sas,library_in_charge',
+        'is_published' => 'nullable|boolean',
+    ]);
 
-        $data['offices'] = json_encode($data['offices']);
-        $data['is_published'] = $request->has('is_published');
+    $data['offices'] = json_encode($data['offices']);
+    $data['is_published'] = $request->has('is_published');
 
-        // ✅ Save clearance record
-        Clearance::create($data);
+    $type = \App\Models\ClearanceType::find($data['clearance_type_id']);
 
-        return redirect()->route('admin.clearances.index')
-            ->with('success', 'Clearance created successfully!');
+    // -----------------------------
+    // FORCE DEAN TO USE THEIR OWN DEPARTMENT
+    // -----------------------------
+    if ($type->name === 'Departmental Clearance') {
+
+        // Get dean's assigned department
+        $dean = auth()->user();
+        $deanDepartmentId = $dean->department_id;
+
+        if (!$deanDepartmentId) {
+            return back()->with('warning', 'Your account has no assigned department. Contact admin.');
+        }
+
+        // Auto-assign department to the clearance
+        $data['department_id'] = $deanDepartmentId;
     }
 
-    public function publish(Clearance $clearance)
-    {
-        $clearance->update(['is_published' => true]);
+    Clearance::create($data);
 
-        return back()->with('success', 'Clearance published and sent to corresponding office!');
-    }
+    return redirect()->route('admin.clearances.index')
+        ->with('success', 'Clearance created successfully!');
+}
+
 }
