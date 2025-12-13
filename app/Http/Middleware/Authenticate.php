@@ -25,8 +25,8 @@ class Authenticate extends Middleware
             if (in_array('student', $this->guards)) {
                 return route('login.student'); // Redirect student guard to signin route
             }
-            // Default fallback redirect for all other guards
-            return route('login');
+            // Default fallback redirect for all other guards (including web)
+            return route('login.student');
         }
     }
 }

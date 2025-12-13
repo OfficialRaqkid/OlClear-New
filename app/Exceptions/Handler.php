@@ -38,7 +38,7 @@ class Handler extends ExceptionHandler
                 $login = 'login.student';
                 break;
             default:
-                $login = 'login';
+                $login = 'login.student';
                 break;
         }
 
