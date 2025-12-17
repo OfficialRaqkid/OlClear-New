@@ -5,72 +5,226 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Clearance;
 use App\Models\ClearanceRequest;
-use Illuminate\Http\Request;
 
 class ClearanceController extends Controller
 {
-public function index()
+    /* =========================================================
+     |  SHOW AVAILABLE CLEARANCES (ALL TYPES)
+     ========================================================= */
+  public function index()
 {
-    $student = auth()->user()->studentProfile;
+    $student = auth()->user()->studentProfile
+        ?? abort(403, 'Student profile missing');
 
-    $clearances = Clearance::where('is_published', true)
-        ->where('is_active', true)
-        ->where(function ($q) use ($student) {
+    $clearances = Clearance::where(function ($q) use ($student) {
 
-            // Financial (everyone sees this)
-            $q->whereHas('clearanceType', function ($type) {
-                $type->where('name', 'Financial Clearance');
-            });
+        /* ===============================
+         | FINANCIAL (NORMAL)
+         =============================== */
+        $q->where(function ($x) {
+            $x->whereHas('clearanceType', fn ($t) =>
+                $t->where('name', 'Financial Clearance')
+            )
+            ->where('is_active', true);
+        });
 
-            // Departmental (only same department)
-            $q->orWhere(function ($d) use ($student) {
-                $d->whereHas('clearanceType', function ($type) {
-                    $type->where('name', 'Departmental Clearance');
-                })
-                ->where('department_id', $student->department_id);
-            });
-        })
-        ->latest()
-        ->get();
+        /* ===============================
+         | DEPARTMENTAL (NORMAL)
+         =============================== */
+        $q->orWhere(function ($x) use ($student) {
+            $x->whereHas('clearanceType', fn ($t) =>
+                $t->where('name', 'Departmental Clearance')
+            )
+            ->where('department_id', $student->department_id)
+            ->where('is_active', true);
+        });
+
+        /* ===============================
+         | MARCHING (SPECIAL CASE)
+         =============================== */
+        if ((int) $student->year_level_id === 4) {
+            $q->orWhereHas('clearanceType', fn ($t) =>
+                $t->where('name', 'Marching Clearance')
+            );
+        }
+
+    })
+    ->with('clearanceType')
+    ->get();
 
     return view('dashboard.student.clearances.index', compact('clearances'));
 }
 
-
-    public function requestClearance($id)
+    /* =========================================================
+     |  REQUEST CLEARANCE (ENTRY POINT)
+     ========================================================= */
+public function requestClearance($id)
 {
-    $student = auth()->user();
+    $student = auth()->user()->studentProfile
+        ?? abort(403, 'Student profile not found.');
 
-    if (!$student->studentProfile) {
-        return redirect()->back()->with('error', 'No student profile found for your account.');
+    $clearance = Clearance::with('clearanceType')->findOrFail($id);
+
+    // 🚫 Prevent duplicate active requests (NOT for marching)
+    if ($clearance->clearanceType->name !== 'Marching Clearance') {
+
+        $exists = ClearanceRequest::where([
+                'student_id'   => $student->id,
+                'clearance_id' => $clearance->id,
+            ])
+            ->whereIn('status', ['pending', 'held', 'accepted'])
+            ->exists();
+
+        if ($exists) {
+            return back()->with('warning', 'You already have an active request.');
+        }
     }
 
-    $clearance = Clearance::findOrFail($id);
+    return match ($clearance->clearanceType->name) {
 
-    // Prevent duplicate requests
-    $existingRequest = ClearanceRequest::where('student_id', $student->studentProfile->id)
-        ->where('clearance_id', $id)
-        ->whereIn('status', ['pending', 'accepted', 'held', 'completed'])
-        ->first();
+        'Marching Clearance' =>
+            $this->requestMarching($student, $clearance),
 
-    if ($existingRequest) {
-        return redirect()->back()->with('warning', 'You have already submitted this clearance request.');
-    }
+        'Departmental Clearance' =>
+            $this->requestDepartmental($student, $clearance),
 
-    // Determine the FIRST office
-    if ($clearance->clearanceType->name === 'Departmental Clearance') {
-        $firstOffice = 'dean'; // 👍 Dean first
-    } else {
-        $firstOffice = 'library_in_charge'; // 👍 Financial goes to Library
-    }
+        'Financial Clearance' =>
+            $this->requestFinancial($student, $clearance),
 
-    ClearanceRequest::create([
-        'student_id' => $student->studentProfile->id,
-        'clearance_id' => $id,
-        'status' => 'pending',
-        'current_office' => $firstOffice, // 🔥 Correct starting office
-    ]);
-
-    return redirect()->back()->with('success', 'Your clearance request has been submitted!');
+        default =>
+            abort(400, 'Invalid clearance type.'),
+    };
 }
+
+    /* =========================================================
+     |  MARCHING — REGISTRAR FIRST
+     ========================================================= */
+private function requestMarching($student, $clearance)
+{
+    if ($student->year_level_id !== 4) {
+        abort(403, 'Only 4th year students may request marching clearance.');
+    }
+
+    $request = ClearanceRequest::where([
+        'student_id'   => $student->id,
+        'clearance_id' => $clearance->id,
+    ])->latest()->first();
+
+    /**
+     * 1️⃣ FIRST CLICK → ACTIVATION REQUEST
+     */
+    if (!$request) {
+        ClearanceRequest::create([
+            'student_id'     => $student->id,
+            'clearance_id'   => $clearance->id,
+            'status'         => 'pending',
+            'current_office' => 'registrar',
+        ]);
+
+        return back()->with(
+            'success',
+            'Marching clearance activation request sent.'
+        );
+    }
+
+    /**
+     * 2️⃣ SECOND CLICK → START AUTO FLOW
+     */
+    if ($request->status === 'activation_approved') {
+        $request->update([
+            'status'         => 'pending',
+            'current_office' => 'dean',
+        ]);
+
+        return back()->with(
+            'success',
+            'Marching clearance process started.'
+        );
+    }
+
+    return back()->with(
+        'warning',
+        'Marching clearance is already in progress.'
+    );
+}
+
+    /* =========================================================
+     |  DEPARTMENTAL — DEAN
+     ========================================================= */
+    private function requestDepartmental($student, $clearance)
+    {
+        ClearanceRequest::create([
+            'student_id'     => $student->id,
+            'clearance_id'   => $clearance->id,
+            'status'         => 'pending',
+            'current_office' => 'dean',
+        ]);
+
+        return back()->with(
+            'success',
+            'Departmental clearance submitted to the Dean.'
+        );
+    }
+
+    /* =========================================================
+     |  FINANCIAL — LIBRARY / BO
+     ========================================================= */
+    private function requestFinancial($student, $clearance)
+    {
+        ClearanceRequest::create([
+            'student_id'     => $student->id,
+            'clearance_id'   => $clearance->id,
+            'status'         => 'pending',
+            'current_office' => 'library_in_charge',
+        ]);
+
+        return back()->with(
+            'success',
+            'Financial clearance submitted.'
+        );
+    }
+
+    /* =========================================================
+     |  SHOW MARCHING CLEARANCES (STUDENT VIEW)
+     ========================================================= */
+    public function marching()
+    {
+        $student = auth()->user()->studentProfile
+            ?? abort(403, 'Student profile not found.');
+
+        if ($student->year_level_id !== 4) {
+            abort(403, 'Marching clearance is for 4th year students only.');
+        }
+
+        $clearances = Clearance::whereHas('clearanceType', fn ($q) =>
+                $q->where('name', 'Marching Clearance')
+            )
+            ->latest()
+            ->get();
+
+        $requests = ClearanceRequest::where('student_id', $student->id)
+            ->get()
+            ->keyBy('clearance_id');
+
+        return view(
+            'dashboard.student.clearances.marching',
+            compact('clearances', 'requests')
+        );
+    }
+
+    /* =========================================================
+     |  MY REQUESTS
+     ========================================================= */
+    public function myRequests()
+    {
+        $student = auth()->user()->studentProfile
+            ?? abort(403, 'Student profile not found.');
+
+        $requests = ClearanceRequest::with('clearance.clearanceType')
+            ->where('student_id', $student->id)
+            ->latest()
+            ->get();
+
+        return view('dashboard.student.clearances.requests', compact('requests'));
+    }
 }

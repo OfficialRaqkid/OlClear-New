@@ -43,6 +43,9 @@ class SigninUserContoroller extends Controller
             case 4: return redirect()->route('vp_sas.dashboard');
             case 5: return redirect()->route('business_office.dashboard');
             case 6: return redirect()->route('student.dashboard');
+            case 7: return redirect()->route('registrar.dashboard');
+            case 8: return redirect()->route('vp_academic.dashboard');
+            case 9: return redirect()->route('college_president.dashboard');
             default:
                 Auth::logout();
                 return back()->withErrors(['login' => 'Role not allowed.']);

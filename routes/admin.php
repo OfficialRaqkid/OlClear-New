@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\SigninUserContoroller;
 use App\Http\Controllers\Admin\SystemLogController;
 use App\Http\Controllers\Admin\ClearanceController;
 use App\Http\Controllers\BusinessOffice\ClearanceController as BOClearanceController;
+use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\ProfileController;
 
 Route::prefix('admin')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');

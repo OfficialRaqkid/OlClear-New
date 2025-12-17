@@ -90,6 +90,10 @@
                                 <option value="3">Dean</option>
                                 <option value="4">VP SAS</option>
                                 <option value="5">Business Office</option>
+                                    {{-- Marching Clearance roles --}}
+                                <option value="7">Registrar</option>
+                                <option value="8">VP Academic Affairs</option>
+                                <option value="9">College President</option>
                             </select>
                         </div>
 

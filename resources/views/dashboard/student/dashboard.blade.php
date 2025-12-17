@@ -84,9 +84,6 @@
             </div>
         </div>
     @endif
-</div>
-
-
 
         {{-- Profile Quick Info --}}
         <div class="col-lg-4">

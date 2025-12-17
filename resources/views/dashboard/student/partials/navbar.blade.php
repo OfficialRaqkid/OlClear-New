@@ -11,13 +11,16 @@
                 <a href="#" class="close">&times;</a>
             </div>
             <ul class="nav">
-                <li class="nav-item active show">
+                <li class="nav-item {{ request()->routeIs('student.dashboard') ? 'active' : '' }}">
                     <a href="{{ route('student.dashboard') }}"  class="nav-link"><i class="typcn typcn-chart-area-outline"></i> Dashboard</a>
                 </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link"><i class="typcn typcn-clipboard"></i> Request Clearance</a>
-                </li>
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('student.clearances.marching') ? 'active' : '' }}">
+                <a href="{{ route('student.clearances.marching') }}" class="nav-link">
+                    <i class="typcn typcn-clipboard"></i>
+                    Request Clearance
+                </a>
+            </li>
+                <li class="nav-item {{ request()->routeIs('student.clearances.index') ? 'active' : '' }}">
                     <a href="{{ route('student.clearances.index') }}"  class="nav-link"><i class="typcn typcn-document-text"></i> My Clearances</a>
                 </li>
             </ul>

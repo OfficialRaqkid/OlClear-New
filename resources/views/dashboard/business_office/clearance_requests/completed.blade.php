@@ -29,18 +29,18 @@
                             <th>Completed Date</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach ($completedRequests as $key => $req)
-                            <tr>
-                                <td>{{ $key + 1 }}</td>
-                                <td>{{ $req->student->first_name ?? 'N/A' }} {{ $req->student->last_name ?? '' }}</td>
-                                <td>{{ $req->student->program->name ?? 'N/A' }}</td>
-                                <td>{{ $req->student->yearLevel->name ?? 'N/A' }}</td>
-                                <td><span class="badge bg-success">Completed</span></td>
-                                <td>{{ $req->updated_at->format('M d, Y h:i A') }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
+                        <tbody>
+                            @foreach ($completedRequests->where('clearance_id', 3) as $key => $req)
+                                <tr>
+                                    <td>{{ $key + 1 }}</td>
+                                    <td>{{ $req->student->first_name ?? 'N/A' }} {{ $req->student->last_name ?? '' }}</td>
+                                    <td>{{ $req->student->program->name ?? 'N/A' }}</td>
+                                    <td>{{ $req->student->yearLevel->name ?? 'N/A' }}</td>
+                                    <td><span class="badge bg-success">Completed</span></td>
+                                    <td>{{ $req->updated_at->format('M d, Y h:i A') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
                 </table>
             @endif
         </div>

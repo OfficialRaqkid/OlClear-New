@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LibraryInCharge\LibraryInChargeDashboardController;
-use App\Http\Controllers\Auth\SigninUserController;
+use App\Http\Controllers\Auth\SigninUserContoroller;
 use App\Http\Controllers\Office\ClearanceApprovalController;
 
 // 🧭 Library In-Charge Dashboard
@@ -14,7 +14,7 @@ Route::prefix('library_in_charge')
         Route::get('/dashboard', [LibraryInChargeDashboardController::class, 'index'])
             ->name('dashboard');
 
-        Route::post('/logout', [SigninUserController::class, 'destroy'])
+        Route::post('/logout', [SigninUserContoroller::class, 'destroy'])
             ->name('logout');
 
         Route::get('/clearance-requests', [ClearanceApprovalController::class, 'libraryIndex'])

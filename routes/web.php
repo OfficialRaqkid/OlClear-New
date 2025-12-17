@@ -17,3 +17,5 @@ require __DIR__ . '/registrar.php';
 require __DIR__ . '/business_office.php';
 require __DIR__ . '/vp_sas.php';
 require __DIR__ . '/library_in_charge.php';
+require __DIR__ . '/college_president.php';
+require __DIR__ . '/vp_academic.php';

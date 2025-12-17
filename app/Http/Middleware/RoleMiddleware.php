@@ -31,6 +31,9 @@ class RoleMiddleware
             'vp_sas' => 4,
             'business_office' => 5,
             'student' => 6,
+            'registrar' => 7,
+            'vp_academic' => 8,
+            'colllege_president' => 9,
         ];
 
         // normalize roles arg

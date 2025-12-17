@@ -5,7 +5,7 @@
             <a href="{{ route('student.dashboard') }}"  class="nav-link {{ request()->routeIs('student.dashboard') ? 'active' : '' }}">
                 <i class="typcn typcn-home"></i> Dashboard
             </a>
-            <a href="" class="nav-link {{ request()->routeIs('student.request-clearance') ? 'active' : '' }}">
+            <a href="{{ route('student.clearances.marching') }}" class="nav-link {{ request()->routeIs('student.clearances.marching') ? 'active' : '' }}">
                 <i class="typcn typcn-document-add"></i> Request Clearance
             </a>
             <a href="{{ route('student.clearances.index') }}" 

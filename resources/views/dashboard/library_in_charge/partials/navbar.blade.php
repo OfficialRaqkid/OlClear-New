@@ -49,14 +49,15 @@
                         <span>Librarian</span>
                     </div>
                     <a href="" class="dropdown-item"><i class="typcn typcn-user-outline"></i> My Profile</a>
-                <a href="{{ route('logout.admin') }}" class="dropdown-item"
-    onclick="event.preventDefault(); document.getElementById('logout-form-admin').submit();">
-    <i class="typcn typcn-power-outline"></i> Sign Out
+<a href="{{ route('library_in_charge.logout') }}" class="dropdown-item"
+   onclick="event.preventDefault(); document.getElementById('logout-form-library').submit();">
+   <i class="typcn typcn-power-outline"></i> Sign Out
 </a>
 
-<form id="logout-form-admin" action="{{ route('logout.admin') }}" method="POST" class="d-none">
+<form id="logout-form-library" action="{{ route('library_in_charge.logout') }}" method="POST" class="d-none">
     @csrf
 </form>
+
                 </div>
             </div>
         </div>

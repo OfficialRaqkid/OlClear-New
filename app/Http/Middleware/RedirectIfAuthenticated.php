@@ -38,6 +38,15 @@ class RedirectIfAuthenticated
 
                     case 6: // Student
                         return redirect()->route('student.dashboard');
+
+                    case 7: // Registrar
+                        return redirect()->route('registrar.dashboard');
+
+                    case 8: // VP Academic
+                        return redirect()->route('vp_academic.dashboard');
+                        
+                    case 9: // College President
+                        return redirect()->route('college_president.dashboard');
                 }
 
                 // fallback if role_id doesn't match any

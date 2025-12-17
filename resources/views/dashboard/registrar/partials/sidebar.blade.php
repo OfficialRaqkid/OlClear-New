@@ -8,8 +8,8 @@
             <a href="" class="nav-link {{ request()->routeIs('registrar.check-clearances') ? 'active' : '' }}">
                 <i class="typcn typcn-document"></i> Check Clearances
             </a>
-            <a href="" class="nav-link {{ request()->routeIs('registrar.release-requests') ? 'active' : '' }}">
-                <i class="typcn typcn-clipboard"></i> T.O.R / H.D. Requests
+            <a href="" class="nav-link {{ request()->routeIs('registrar.marching.index') ? 'active' : '' }}">
+                <i class="typcn typcn-clipboard"></i> Clearance Requests
             </a>
             <a href="" class="nav-link {{ request()->routeIs('registrar.reports') ? 'active' : '' }}">
                 <i class="typcn typcn-chart-bar-outline"></i> Reports

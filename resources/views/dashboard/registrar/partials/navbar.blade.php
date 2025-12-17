@@ -17,10 +17,12 @@
                         <i class="typcn typcn-document-add"></i> Check Clearances
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="" class="nav-link">
-                        <i class="typcn typcn-clipboard"></i> T.O.R / H.D. Requests
+                <li class="nav-item {{ request()->routeIs('registrar.marching.*') ? 'active' : '' }}">
+                    <a href="{{ route('registrar.marching.index') }}" class="nav-link">
+                        <i class="typcn typcn-clipboard"></i>
+                        Clearance Requests
                     </a>
+                </li>
                 </li>
                 <li class="nav-item">
                     <a href="" class="nav-link">
@@ -49,7 +51,19 @@
                         <span>Registrar</span>
                     </div>
                     <a href="" class="dropdown-item"><i class="typcn typcn-user-outline"></i> My Profile</a>
-                    <a href="" class="dropdown-item"><i class="typcn typcn-power-outline"></i> Sign Out</a>
+                    <a href="{{ route('registrar.logout') }}"
+                    class="dropdown-item text-danger"
+                    onclick="event.preventDefault(); document.getElementById('logout-form-registrar').submit();">
+                    <i class="typcn typcn-power-outline"></i> Sign Out
+                    </a>
+
+                    <form id="logout-form-registrar"
+                        action="{{ route('registrar.logout') }}"
+                        method="POST"
+                        class="d-none">
+                        @csrf
+                    </form>
+
                 </div>
             </div>
         </div>

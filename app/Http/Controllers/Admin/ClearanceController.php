@@ -9,11 +9,13 @@ use Illuminate\Http\Request;
 
 class ClearanceController extends Controller
 {
+    /**
+     * Show all clearances
+     */
     public function index()
     {
         $clearances = Clearance::latest()->get();
 
-        // 🔧 Decode offices JSON so Blade can loop through easily
         foreach ($clearances as $clearance) {
             $clearance->offices = json_decode($clearance->offices, true);
         }
@@ -21,58 +23,80 @@ class ClearanceController extends Controller
         return view('dashboard.admin.clearances.index', compact('clearances'));
     }
 
+    /**
+     * Show create clearance form
+     */
     public function create()
     {
         $offices = [
-            'business_office' => 'Business Office',
-            'dean' => 'Dean',
-            'vp_sas' => 'VP for SAS',
+            'dean'              => 'Dean',
+            'business_office'   => 'Business Office',
+            'registrar'         => 'Registrar',
+            'vp_academic'       => 'VP Academic',
+            'vp_sas'            => 'VP SAS',
             'library_in_charge' => 'Library In-Charge',
+            'college_president' => 'College President',
         ];
 
-        // ✅ Fetch clearance types for dropdown
         $clearanceTypes = ClearanceType::all();
 
         return view('dashboard.admin.clearances.create', compact('offices', 'clearanceTypes'));
     }
 
-   public function store(Request $request)
-{
-    $data = $request->validate([
-        'clearance_type_id' => 'required|exists:clearance_types,id',
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'offices' => 'required|array|min:1',
-        'offices.*' => 'string|in:business_office,dean,vp_sas,library_in_charge',
-        'is_published' => 'nullable|boolean',
-    ]);
+    /**
+     * Store a new clearance
+     */
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'clearance_type_id' => 'required|exists:clearance_types,id',
+            'title'             => 'required|string|max:255',
+            'description'       => 'nullable|string',
+            'offices'           => 'required|array|min:1',
+            'offices.*'         => 'string',
+        ]);
 
-    $data['offices'] = json_encode($data['offices']);
-    $data['is_published'] = $request->has('is_published');
+        $type = ClearanceType::findOrFail($data['clearance_type_id']);
 
-    $type = \App\Models\ClearanceType::find($data['clearance_type_id']);
+        // Force title = type name (no duplicates)
+        $data['title'] = $type->name;
 
-    // -----------------------------
-    // FORCE DEAN TO USE THEIR OWN DEPARTMENT
-    // -----------------------------
-    if ($type->name === 'Departmental Clearance') {
+        $data['offices'] = json_encode($data['offices']);
+        $data['is_published'] = true;
 
-        // Get dean's assigned department
-        $dean = auth()->user();
-        $deanDepartmentId = $dean->department_id;
-
-        if (!$deanDepartmentId) {
-            return back()->with('warning', 'Your account has no assigned department. Contact admin.');
+        // Departmental
+        if ($type->id === ClearanceType::DEPARTMENTAL) {
+            $data['department_id'] = auth()->user()->department_id;
         }
 
-        // Auto-assign department to the clearance
-        $data['department_id'] = $deanDepartmentId;
+        // Marching
+        if ($type->id === ClearanceType::MARCHING) {
+            $data['department_id'] = null;
+        }
+
+        Clearance::create($data);
+
+        return redirect()->route('admin.clearances.index')
+            ->with('success', 'Clearance created successfully!');
     }
 
-    Clearance::create($data);
+    /**
+     * Publish clearance
+     */
+    public function publish(Clearance $clearance)
+    {
+        $clearance->update(['is_published' => true]);
+        return redirect()->route('admin.clearances.index')
+            ->with('success', 'Clearance published successfully!');
+    }
 
-    return redirect()->route('admin.clearances.index')
-        ->with('success', 'Clearance created successfully!');
-}
-
+    /**
+     * Unpublish clearance
+     */
+    public function unpublish(Clearance $clearance)
+    {
+        $clearance->update(['is_published' => false]);
+        return redirect()->route('admin.clearances.index')
+            ->with('success', 'Clearance unpublished successfully!');
+    }
 }

@@ -44,7 +44,14 @@
                         <span>VP - Finance</span>
                     </div>
                     <a href="" class="dropdown-item"><i class="typcn typcn-user-outline"></i> My Profile</a>
-                    <a href="" class="dropdown-item"><i class="typcn typcn-power-outline"></i> Sign Out</a>
+<a href="{{ route('college_president.logout') }}" 
+   class="dropdown-item text-danger"
+   onclick="event.preventDefault(); document.getElementById('logout-form-college-president').submit();">
+   <i class="typcn typcn-power-outline"></i> Sign Out
+</a>
+<form id="logout-form-college-president" action="{{ route('college_president.logout') }}" method="POST" class="d-none">
+    @csrf
+</form>  
                 </div>
             </div>
         </div>

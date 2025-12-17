@@ -15,7 +15,7 @@ class UserController extends Controller
             'username'   => 'required|unique:users,username',
             'first_name' => 'required',
             'last_name'  => 'required',
-            'role_id' => 'required|integer|in:2,3,4,5',
+            'role_id' => 'required|integer|in:2,3,4,5,7,8,9'
  
         ];
 

@@ -9,6 +9,12 @@ class ClearanceType extends Model
 {
     use HasFactory;
 
+    // 🔒 SAFE CONSTANTS
+    const FINANCIAL    = 1;
+    const DEPARTMENTAL = 2;
+    const RELEASE      = 3;
+    const MARCHING     = 4;
+
     protected $fillable = [
         'name',
         'description',
