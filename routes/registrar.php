@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Registrar\RegistrarDashboardController;
 use App\Http\Controllers\Registrar\RegistrarClearanceController;
+use App\Http\Controllers\Office\ClearanceApprovalController;
 
 Route::prefix('registrar')
     ->middleware(['auth'])
@@ -39,4 +40,16 @@ Route::prefix('registrar')
             '/marching-requests/{request}/hold',
             [RegistrarClearanceController::class, 'hold']
         )->name('marching.hold');
+
+        Route::get('/clearance-requests', [ClearanceApprovalController::class, 'registrarIndex'])
+            ->name('clearances.index');
+
+        Route::post('/clearance-requests/{id}/accept', [ClearanceApprovalController::class, 'registrarAccept'])
+            ->name('clearances.accept');
+
+        Route::post('/clearance-requests/{id}/hold', [ClearanceApprovalController::class, 'registrarHold'])
+            ->name('clearances.hold');
+
+        Route::get('/reports/completed', [ClearanceApprovalController::class, 'registrarCompletedClearances'])
+            ->name('reports.completed');
     });

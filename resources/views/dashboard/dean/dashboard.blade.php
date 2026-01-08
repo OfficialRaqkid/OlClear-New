@@ -10,9 +10,6 @@
             </h2>
             <p class="az-dashboard-text">Here’s an overview of your department’s clearance activities.</p>
         </div>
-        <div class="az-content-header-right">
-            <a href="" class="btn btn-purple">Generate Report</a>
-        </div>
     </div>
 
     <div class="row row-sm mg-b-20">

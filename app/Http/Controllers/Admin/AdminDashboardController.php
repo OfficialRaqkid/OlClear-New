@@ -3,23 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Department; // <-- Add this
+use App\Models\Department;
 
 class AdminDashboardController extends Controller
 {
     public function index()
     {
-    $departments = Department::all(); // ✅ Get all departments
-        return view('dashboard.admin.dashboard', compact('departments'));
+        return view('dashboard.admin.dashboard');
     }
 
-    public function logout(Request $request)
+    public function manageUsers()
     {
-        Auth::guard('admin')->logout(); 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $departments = Department::all();
 
-        return redirect('/')->with('success', 'Logged out successfully.');
+        return view('dashboard.admin.manage_users', compact('departments'));
     }
 }

@@ -14,14 +14,16 @@ class Clearance extends Model
         'title',
         'description',
         'offices',
+        'school_year',   // ✅ REQUIRED for all
+        'semester',      // ✅ NULLABLE (marching)
         'is_published',
         'is_active',
     ];
 
     protected $casts = [
-        'offices' => 'array',
+        'offices'       => 'array',
         'is_published' => 'boolean',
-        'is_active' => 'boolean',
+        'is_active'    => 'boolean',
     ];
 
     public function clearanceType()

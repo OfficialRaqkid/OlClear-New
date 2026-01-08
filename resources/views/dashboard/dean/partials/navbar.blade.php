@@ -23,12 +23,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="" class="nav-link">
-                        <i class="typcn typcn-time"></i> Clearance History
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="" class="nav-link">
+                    <a href="{{ route('dean.completed') }}" 
+                    class="nav-link {{ request()->routeIs('dean.completed') ? 'active' : '' }}">
                         <i class="typcn typcn-chart-bar-outline"></i> Department Reports
                     </a>
                 </li>
@@ -54,12 +50,12 @@
                         <span>Dean / Chairperson</span>
                     </div>
                     <a href="" class="dropdown-item"><i class="typcn typcn-user-outline"></i> My Profile</a>
-                <a href="{{ route('logout.admin') }}" class="dropdown-item"
-    onclick="event.preventDefault(); document.getElementById('logout-form-admin').submit();">
+                <a href="{{ route('dean.logout') }}" class="dropdown-item"
+    onclick="event.preventDefault(); document.getElementById('logout-form-dean').submit();">
     <i class="typcn typcn-power-outline"></i> Sign Out
 </a>
 
-<form id="logout-form-admin" action="{{ route('logout.admin') }}" method="POST" class="d-none">
+<form id="logout-form-dean" action="{{ route('dean.logout') }}" method="POST" class="d-none">
     @csrf
 </form>
                 </div>

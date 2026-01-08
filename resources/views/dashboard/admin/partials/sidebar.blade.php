@@ -6,12 +6,10 @@
             class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <i class="typcn typcn-home"></i> Dashboard
             </a>
-            <a href="javascript:void(0);" 
-            class="nav-link {{ request()->routeIs('admin.users') ? 'active' : '' }}" 
-            data-toggle="modal" 
-            data-target="#addUserModal">
-                <i class="typcn typcn-user-add"></i> Manage Users
-            </a>
+           <a href="{{ route('admin.users') }}"
+   class="nav-link {{ request()->routeIs('admin.users') ? 'active' : '' }}">
+    <i class="typcn typcn-user-add"></i> Manage Users
+</a>
             </a>
             <a href="{{ route('admin.clearances.index') }}" 
             class="nav-link {{ request()->routeIs('admin.clearances.index') ? 'active' : '' }}">

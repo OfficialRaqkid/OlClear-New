@@ -21,7 +21,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/signup', [SignupUserContoroller::class, 'store'])->name('register.student.submit');
 
     // only include if ProgramController exists
-    Route::get('/get-programs/{department}', [ProgramController::class, 'getPrograms'])->name('get.programs');
+    //Route::get('/get-programs/{department}', [ProgramController::class, 'getPrograms'])->name('get.programs');
 });
 
 

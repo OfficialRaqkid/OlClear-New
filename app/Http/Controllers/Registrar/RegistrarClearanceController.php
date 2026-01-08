@@ -29,19 +29,25 @@ class RegistrarClearanceController extends Controller
     /**
      * Show student requests per marching clearance
      */
-    public function marchingRequests(Clearance $clearance)
-    {
-        $requests = ClearanceRequest::with('student')
-            ->where('clearance_id', $clearance->id)
-            ->where('current_office', 'registrar')
-            ->latest()
-            ->get();
+public function marchingRequests(Clearance $clearance)
+{
+    $requests = ClearanceRequest::with('student')
+        ->where('clearance_id', $clearance->id)
+        ->where('current_office', 'registrar') // 🔒 activation only
+        ->whereIn('status', [
+            'pending',               // ✅ FIRST activation request
+            'activation_pending',
+            'activation_approved',
+            'held',
+        ])
+        ->latest()
+        ->get();
 
-        return view(
-            'dashboard.registrar.clearances.requests',
-            compact('requests', 'clearance')
-        );
-    }
+    return view(
+        'dashboard.registrar.clearances.requests',
+        compact('requests', 'clearance')
+    );
+}
 
     /**
      * Approve student request (send back to student)
@@ -49,8 +55,7 @@ class RegistrarClearanceController extends Controller
 public function approve(ClearanceRequest $request)
 {
     $request->update([
-        'status'         => 'activation_approved',
-        'current_office' => null,
+        'status' => 'activation_approved',
     ]);
 
     return back()->with(
@@ -58,7 +63,6 @@ public function approve(ClearanceRequest $request)
         'Marching clearance activated. Student may now proceed.'
     );
 }
-
     /**
      * Hold student request
      */

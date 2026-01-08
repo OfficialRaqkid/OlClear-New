@@ -30,12 +30,15 @@
             @else
 
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-dark">
+                               <thead class="table-dark">
                     <tr>
                         <th>#</th>
                         <th>Student Name</th>
                         <th>Department</th>
                         <th>Year Level</th>
+                        <th>Clearance Type</th>
+                        <th>School Year</th>
+                        <th>Semester</th>
                         <th>Status</th>
                         <th class="text-center">Actions</th>
                     </tr>
@@ -48,12 +51,15 @@
                         <td>{{ $req->student->first_name }} {{ $req->student->last_name }}</td>
                         <td>{{ $req->student->program->department->name }}</td>
                         <td>{{ $req->student->yearLevel->name }}</td>
+                        <td>{{ $req->clearance->clearanceType->name }}</td>
+                        <td>{{ $req->clearance->school_year ?? '—' }}</td>
+                        <td>{{ $req->clearance->semester ?? '—' }}</td>
 
                         <td>
-                            <span class="badge 
-                                @if($req->status == 'pending') bg-warning 
-                                @elseif($req->status == 'accepted') bg-success 
-                                @elseif($req->status == 'held') bg-danger 
+                            <span class="badge
+                                @if($req->status == 'pending') bg-warning
+                                @elseif($req->status == 'accepted') bg-success
+                                @elseif($req->status == 'held') bg-danger
                                 @else bg-secondary @endif">
                                 {{ ucfirst($req->status) }}
                             </span>

@@ -17,11 +17,6 @@
                 <i class="typcn typcn-document-add"></i> Sign Requests
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="" class="nav-link">
-                        <i class="typcn typcn-notes"></i> Notes
-                    </a>
-                </li>
             </ul>
         </div>
 

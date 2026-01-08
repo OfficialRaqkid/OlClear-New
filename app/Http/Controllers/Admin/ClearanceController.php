@@ -16,10 +16,6 @@ class ClearanceController extends Controller
     {
         $clearances = Clearance::latest()->get();
 
-        foreach ($clearances as $clearance) {
-            $clearance->offices = json_decode($clearance->offices, true);
-        }
-
         return view('dashboard.admin.clearances.index', compact('clearances'));
     }
 
@@ -47,56 +43,53 @@ class ClearanceController extends Controller
      * Store a new clearance
      */
     public function store(Request $request)
-    {
-        $data = $request->validate([
-            'clearance_type_id' => 'required|exists:clearance_types,id',
-            'title'             => 'required|string|max:255',
-            'description'       => 'nullable|string',
-            'offices'           => 'required|array|min:1',
-            'offices.*'         => 'string',
-        ]);
+{
+    $data = $request->validate([
+        'clearance_type_id' => 'required|exists:clearance_types,id',
+        'title'             => 'required|string|max:255',
+        'description'       => 'nullable|string',
+        'offices'           => 'required|array|min:1',
+        'offices.*'         => 'string',
+        'school_year'       => 'required|string',
+        'semester'          => 'nullable|string',
+    ]);
 
-        $type = ClearanceType::findOrFail($data['clearance_type_id']);
+    $type = ClearanceType::findOrFail($data['clearance_type_id']);
 
-        // Force title = type name (no duplicates)
-        $data['title'] = $type->name;
+    // Force title = clearance type name
+    $data['title'] = $type->name;
 
-        $data['offices'] = json_encode($data['offices']);
-        $data['is_published'] = true;
+    $data['is_published'] = true;
 
-        // Departmental
-        if ($type->id === ClearanceType::DEPARTMENTAL) {
-            $data['department_id'] = auth()->user()->department_id;
+    // Departmental → semester + department
+    if ($type->id === ClearanceType::DEPARTMENTAL) {
+        if (empty($data['semester'])) {
+            return back()
+                ->withErrors(['semester' => 'Semester is required for Departmental clearance.'])
+                ->withInput();
         }
 
-        // Marching
-        if ($type->id === ClearanceType::MARCHING) {
-            $data['department_id'] = null;
+        $data['department_id'] = auth()->user()->department_id;
+    }
+
+    // Financial → semester required
+    if ($type->id === ClearanceType::FINANCIAL) {
+        if (empty($data['semester'])) {
+            return back()
+                ->withErrors(['semester' => 'Semester is required for Financial clearance.'])
+                ->withInput();
         }
-
-        Clearance::create($data);
-
-        return redirect()->route('admin.clearances.index')
-            ->with('success', 'Clearance created successfully!');
     }
 
-    /**
-     * Publish clearance
-     */
-    public function publish(Clearance $clearance)
-    {
-        $clearance->update(['is_published' => true]);
-        return redirect()->route('admin.clearances.index')
-            ->with('success', 'Clearance published successfully!');
+    // Marching → school year only
+    if ($type->id === ClearanceType::MARCHING) {
+        $data['semester'] = null;
+        $data['department_id'] = null;
     }
 
-    /**
-     * Unpublish clearance
-     */
-    public function unpublish(Clearance $clearance)
-    {
-        $clearance->update(['is_published' => false]);
-        return redirect()->route('admin.clearances.index')
-            ->with('success', 'Clearance unpublished successfully!');
-    }
+    Clearance::create($data);
+
+    return redirect()->route('admin.clearances.index')
+        ->with('success', 'Clearance created successfully!');
+}
 }

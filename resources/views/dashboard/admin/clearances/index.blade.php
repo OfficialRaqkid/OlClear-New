@@ -49,8 +49,11 @@
 
                             {{-- ✅ Offices --}}
                             <td>
-                                @if ($clearance->offices)
-                                    @foreach ($clearance->offices as $office)
+                                @php
+                                    $offices = is_array($clearance->offices) ? $clearance->offices : (is_string($clearance->offices) ? json_decode($clearance->offices, true) ?? [] : []);
+                                @endphp
+                                @if (!empty($offices))
+                                    @foreach ($offices as $office)
                                         <span class="badge bg-secondary text-uppercase me-1">
                                             {{ str_replace('_', ' ', $office) }}
                                         </span>
@@ -59,6 +62,7 @@
                                     <em class="text-muted">None</em>
                                 @endif
                             </td>
+
 
                             {{-- ✅ Publish Status --}}
                             <td>

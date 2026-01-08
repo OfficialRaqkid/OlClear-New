@@ -16,7 +16,10 @@
     <meta name="author" content="BootstrapDash">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'iClear') }}</title>
+
+        <!-- Favicon -->
+    <link rel="icon" href="{{ asset('favicon.ico') }}?v=2" type="image/x-icon">
 
     <!-- vendor css -->
     <link href="{{ asset('lib/fontawesome-free/css/all.min.css') }}" rel="stylesheet">

@@ -12,6 +12,9 @@
 
     <title>{{ $title ?? 'SignIn | iClear' }}</title>
 
+        <!-- Favicon -->
+    <link rel="icon" href="{{ asset('favicon.ico') }}?v=2" type="image/x-icon">
+
     <!-- vendor css -->
     <link href="{{ asset('lib/fontawesome-free/css/all.min.css') }}" rel="stylesheet">
     <link href="{{ asset('lib/ionicons/css/ionicons.min.css') }}" rel="stylesheet">

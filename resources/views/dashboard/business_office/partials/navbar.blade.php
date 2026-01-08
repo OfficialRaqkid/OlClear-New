@@ -7,23 +7,24 @@
 
         <div class="az-header-menu">
             <ul class="nav">
-                <li class="nav-item active">
-                    <a href="{{ route('business_office.dashboard') }}"  class="nav-link">
+                <li class="nav-item">
+                    <a href="{{ route('business_office.dashboard') }}"  class="nav-link {{ request()->routeIs('business_office.dashboard') ? 'active' : '' }}">
                         <i class="typcn typcn-home-outline"></i> Dashboard
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ route('business_office.clearance_requests.index') }}" class="nav-link">
+                 <li class="nav-item">
+                <a href="{{ route('business_office.clearance_requests.index') }}" class="nav-link {{ request()->routeIs('business_office.clearance_requests.index') ? 'active' : '' }}">
                         <i class="typcn typcn-document-add"></i> Sign Requests
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('business_office.clearances.index') }}"  class="nav-link">
+                    <a href="{{ route('business_office.clearances.index') }}" 
+                     class="nav-link {{ request()->routeIs('business_office.clearances.index') ? 'active' : '' }}">
                         <i class="typcn typcn-folder"></i> Manage Clearances
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('business_office.reports.completed') }}" class="nav-link">
+                    <a href="{{ route('business_office.reports.completed') }}" class="nav-link {{ request()->routeIs('business_office.reports.completed') ? 'active' : '' }}">
                         <i class="typcn typcn-chart-bar-outline"></i> Reports
                     </a>
                 </li>
@@ -49,12 +50,12 @@
                         <span>Business Office</span>
                     </div>
                     <a href="" class="dropdown-item"><i class="typcn typcn-user-outline"></i> My Profile</a>
-                <a href="{{ route('logout.admin') }}" class="dropdown-item"
-    onclick="event.preventDefault(); document.getElementById('logout-form-admin').submit();">
+                <a href="{{ route('business_office.logout') }}" class="dropdown-item"
+    onclick="event.preventDefault(); document.getElementById('logout-form-business_office').submit();">
     <i class="typcn typcn-power-outline"></i> Sign Out
 </a>
 
-<form id="logout-form-admin" action="{{ route('logout.admin') }}" method="POST" class="d-none">
+<form id="logout-form-business_office" action="{{ route('business_office.logout') }}" method="POST" class="d-none">
     @csrf
 </form>
                 </div>

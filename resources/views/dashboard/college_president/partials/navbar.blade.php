@@ -41,7 +41,7 @@
                     <div class="az-header-profile">
                         <div class="az-img-user"><img src="{{ asset('img/faces/face1.jpg') }}" alt=""></div>
                         <h6></h6>
-                        <span>VP - Finance</span>
+                        <span>College President</span>
                     </div>
                     <a href="" class="dropdown-item"><i class="typcn typcn-user-outline"></i> My Profile</a>
 <a href="{{ route('college_president.logout') }}" 

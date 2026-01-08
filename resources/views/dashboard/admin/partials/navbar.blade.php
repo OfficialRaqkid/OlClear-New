@@ -52,12 +52,12 @@
                         <span>Administrator</span>
                     </div>
                     <a href="" class="dropdown-item"><i class="typcn typcn-user-outline"></i> My Profile</a>
-<a href="{{ route('logout.admin') }}" class="dropdown-item"
+<a href="{{ route('admin.logout') }}" class="dropdown-item"
     onclick="event.preventDefault(); document.getElementById('logout-form-admin').submit();">
     <i class="typcn typcn-power-outline"></i> Sign Out
 </a>
 
-<form id="logout-form-admin" action="{{ route('logout.admin') }}" method="POST" class="d-none">
+<form id="logout-form-admin" action="{{ route('admin.logout') }}" method="POST" class="d-none">
     @csrf
 </form>
                 </div>

@@ -9,7 +9,7 @@ use App\Models\ClearanceRequest;
 class ClearanceApprovalController extends Controller
 {
     /* =========================================================
-     |  MARCHING AUTO-FLOW (UNCHANGED)
+     |  MARCHING AUTO-FLOW
      ========================================================= */
     private function marchingFlow(): array
     {
@@ -28,7 +28,7 @@ class ClearanceApprovalController extends Controller
         $currentIndex = array_search($request->current_office, $flow, true);
 
         if ($currentIndex === false) {
-            abort(500, 'Invalid clearance flow state.');
+            abort(500, 'Invalid marching clearance flow state.');
         }
 
         if (!isset($flow[$currentIndex + 1])) {
@@ -45,7 +45,7 @@ class ClearanceApprovalController extends Controller
     }
 
     /* =========================================================
-     |  FINANCIAL FLOW (ADDED)
+     |  FINANCIAL FLOW
      ========================================================= */
     private function financialFlow(): array
     {
@@ -117,7 +117,47 @@ class ClearanceApprovalController extends Controller
     }
 
     /* =========================================================
-     |  DEAN
+ |  LIBRARY IN-CHARGE (FINANCIAL – FIRST STEP)
+ ========================================================= */
+public function libraryIndex()
+{
+    $requests = ClearanceRequest::with(['student.program', 'student.yearLevel'])
+        ->where('current_office', 'library_in_charge')
+        ->whereHas('clearance.clearanceType', fn ($q) =>
+            $q->where('name', 'Financial Clearance')
+        )
+        ->whereIn('status', ['pending', 'accepted', 'held'])
+        ->get();
+
+    return view(
+        'dashboard.library_in_charge.clearance_requests.index',
+        compact('requests')
+    );
+}
+
+public function libraryAccept($id)
+{
+    $request = ClearanceRequest::findOrFail($id);
+
+    if ($request->clearance->clearanceType->name === 'Financial Clearance') {
+        $this->moveFinancialToNextOffice($request);
+    }
+
+    return back()->with('success', 'Financial clearance approved by Library.');
+}
+
+public function libraryHold(Request $req, $id)
+{
+    ClearanceRequest::findOrFail($id)->update([
+        'status'      => 'held',
+        'hold_reason' => $req->hold_reason,
+    ]);
+
+    return back()->with('warning', 'Request put on hold by Library.');
+}
+
+    /* =========================================================
+     |  DEAN  ✅ (ERROR FIXED)
      ========================================================= */
     public function deanIndex()
     {
@@ -126,8 +166,8 @@ class ClearanceApprovalController extends Controller
 
         $requests = ClearanceRequest::with(['student.program.department', 'student.yearLevel'])
             ->where('current_office', 'dean')
-            ->when($departmentId, fn($query) =>
-                $query->whereHas('student.program', fn($q) =>
+            ->when($departmentId, fn ($query) =>
+                $query->whereHas('student.program', fn ($q) =>
                     $q->where('department_id', $departmentId)
                 )
             )
@@ -166,23 +206,94 @@ class ClearanceApprovalController extends Controller
     }
 
     /* =========================================================
-     |  REGISTRAR (UNCHANGED)
-     ========================================================= */
-    public function registrarIndex()
-    {
-        $requests = ClearanceRequest::with(['student.program', 'student.yearLevel'])
-            ->where('current_office', 'registrar')
-            ->get();
+ |  VP SAS (FINANCIAL)
+ ========================================================= */
+public function vpSasIndex()
+{
+    $requests = ClearanceRequest::with(['student.program', 'student.yearLevel'])
+        ->where('current_office', 'vp_sas')
+        ->whereHas('clearance.clearanceType', fn ($q) =>
+            $q->where('name', 'Financial Clearance')
+        )
+        ->whereIn('status', ['pending', 'accepted', 'held'])
+        ->get();
 
-        return view('dashboard.registrar.clearance_requests.index', compact('requests'));
+    return view(
+        'dashboard.vp_sas.clearance_requests.index',
+        compact('requests')
+    );
+}
+
+public function vpSasAccept($id)
+{
+    $request = ClearanceRequest::findOrFail($id);
+
+    if ($request->clearance->clearanceType->name === 'Financial Clearance') {
+        $this->moveFinancialToNextOffice($request);
     }
+
+    return back()->with('success', 'Financial clearance approved by VP SAS.');
+}
+
+public function vpSasHold(Request $req, $id)
+{
+    ClearanceRequest::findOrFail($id)->update([
+        'status'      => 'held',
+        'hold_reason' => $req->hold_reason,
+    ]);
+
+    return back()->with('warning', 'Request put on hold by VP SAS.');
+}
+
+/* =========================================================
+ |  REGISTRAR – FLOW (FINANCIAL + MARCHING)
+ ========================================================= */
+public function registrarIndex()
+{
+    $requests = ClearanceRequest::with([
+            'student.program',
+            'student.yearLevel',
+            'clearance.clearanceType',
+        ])
+        ->where('current_office', 'registrar')
+
+        ->where(function ($q) {
+
+            // ✅ ALWAYS show non-marching clearances
+            $q->whereHas('clearance.clearanceType', function ($t) {
+                $t->where('name', '!=', 'Marching Clearance');
+            });
+
+            // ✅ Show marching ONLY if already in flow
+            $q->orWhere(function ($mq) {
+                $mq->whereHas('clearance.clearanceType', function ($t) {
+                    $t->where('name', 'Marching Clearance');
+                })
+                ->whereNotIn('status', [
+                    'pending',              // activation request
+                    'activation_pending',
+                    'activation_approved',
+                ]);
+            });
+
+        })
+        ->get();
+
+    return view(
+        'dashboard.registrar.clearance_requests.index',
+        compact('requests')
+    );
+}
 
     public function registrarAccept($id)
     {
         $request = ClearanceRequest::findOrFail($id);
-        $this->moveToNextOffice($request);
 
-        return back()->with('success', 'Request approved by Registrar.');
+        if ($request->clearance->clearanceType->name === 'Marching Clearance') {
+            $this->moveToNextOffice($request);
+        }
+
+        return back()->with('success', 'Marching clearance approved by Registrar.');
     }
 
     public function registrarHold(Request $req, $id)
@@ -196,12 +307,45 @@ class ClearanceApprovalController extends Controller
     }
 
     /* =========================================================
-     |  VP ACADEMIC (UNCHANGED)
+     |  REGISTRAR – COMPLETED MARCHING
+     ========================================================= */
+    public function registrarCompletedClearances(Request $request)
+    {
+        $schoolYear = $request->school_year;
+
+        $completedRequests = ClearanceRequest::with([
+                'student.program',
+                'student.yearLevel',
+                'clearance.clearanceType',
+            ])
+            ->where('status', 'completed')
+            ->whereHas('clearance.clearanceType', fn ($q) =>
+                $q->where('name', 'Marching Clearance')
+            )
+            ->when($schoolYear, fn ($q) =>
+                $q->whereHas('clearance', fn ($cq) =>
+                    $cq->where('school_year', $schoolYear)
+                )
+            )
+            ->orderByDesc('updated_at')
+            ->get();
+
+        return view(
+            'dashboard.registrar.clearance_requests.completed',
+            compact('completedRequests', 'schoolYear')
+        );
+    }
+
+    /* =========================================================
+     |  VP ACADEMIC
      ========================================================= */
     public function vpAcademicIndex()
     {
         $requests = ClearanceRequest::with(['student.program', 'student.yearLevel'])
             ->where('current_office', 'vp_academic')
+            ->whereHas('clearance.clearanceType', fn ($q) =>
+                $q->where('name', 'Marching Clearance')
+            )
             ->get();
 
         return view('dashboard.vp_academic.clearance_requests.index', compact('requests'));
@@ -210,115 +354,90 @@ class ClearanceApprovalController extends Controller
     public function vpAcademicAccept($id)
     {
         $request = ClearanceRequest::findOrFail($id);
-        $this->moveToNextOffice($request);
 
-        return back()->with('success', 'Request approved by VP Academic.');
+        if ($request->clearance->clearanceType->name === 'Marching Clearance') {
+            $this->moveToNextOffice($request);
+        }
+
+        return back()->with('success', 'Marching clearance approved by VP Academic.');
+    }
+
+    public function vpAcademicHold(Request $req, $id)
+    {
+        ClearanceRequest::findOrFail($id)->update([
+            'status' => 'held',
+            'hold_reason' => $req->hold_reason,
+        ]);
+
+        return back()->with('warning', 'Request put on hold by VP Academic.');
     }
 
     /* =========================================================
-     |  COLLEGE PRESIDENT (UNCHANGED)
+     |  BUSINESS OFFICE – COMPLETED (ALL TYPES)
+     ========================================================= */
+    public function completedClearancesIndex(Request $request)
+    {
+        $schoolYear = $request->school_year;
+        $semester   = $request->semester;
+
+        $completedRequests = ClearanceRequest::with([
+                'student.program',
+                'student.yearLevel',
+                'clearance.clearanceType'
+            ])
+            ->where('status', 'completed')
+            ->when($schoolYear, fn ($q) =>
+                $q->whereHas('clearance', fn ($cq) =>
+                    $cq->where('school_year', $schoolYear)
+                )
+            )
+            ->when($semester, fn ($q) =>
+                $q->whereHas('clearance', fn ($cq) =>
+                    $cq->where('semester', $semester)
+                )
+            )
+            ->orderByDesc('updated_at')
+            ->get();
+
+        return view(
+            'dashboard.business_office.clearance_requests.completed',
+            compact('completedRequests', 'schoolYear', 'semester')
+        );
+    }
+
+    /* =========================================================
+     |  COLLEGE PRESIDENT
      ========================================================= */
     public function presidentIndex()
     {
         $requests = ClearanceRequest::with(['student.program', 'student.yearLevel'])
             ->where('current_office', 'college_president')
+            ->whereHas('clearance.clearanceType', fn ($q) =>
+                $q->where('name', 'Marching Clearance')
+            )
             ->get();
 
-        return view('dashboard.president.clearance_requests.index', compact('requests'));
+        return view('dashboard.college_president.clearance_requests.index', compact('requests'));
     }
 
     public function presidentAccept($id)
     {
         $request = ClearanceRequest::findOrFail($id);
-        $this->moveToNextOffice($request);
 
-        return back()->with('success', 'Marching clearance completed by College President.');
-    }
-
-    /* =========================================================
-     |  VP SAS
-     ========================================================= */
-    public function vpSasIndex()
-    {
-        $requests = ClearanceRequest::with(['student.program', 'student.yearLevel'])
-            ->where('current_office', 'vp_sas')
-            ->get();
-
-        return view('dashboard.vp_sas.clearance_requests.index', compact('requests'));
-    }
-
-    public function vpSasAccept($id)
-    {
-        $request = ClearanceRequest::findOrFail($id);
-        $type = $request->clearance->clearanceType->name;
-
-        if ($type === 'Financial Clearance') {
-            $this->moveFinancialToNextOffice($request);
+        if ($request->clearance->clearanceType->name === 'Marching Clearance') {
+            $this->moveToNextOffice($request);
         }
 
-        return back()->with('success', 'Request approved by VP SAS.');
+        return back()->with('success', 'Marching clearance approved by College President.');
     }
 
-    public function vpSasHold(Request $req, $id)
+    public function presidentHold(Request $req, $id)
     {
         ClearanceRequest::findOrFail($id)->update([
             'status' => 'held',
             'hold_reason' => $req->hold_reason,
         ]);
 
-        return back()->with('warning', 'Request put on hold by VP SAS.');
-    }
-
-    /* =========================================================
-     |  LIBRARY IN-CHARGE
-     ========================================================= */
-    public function libraryIndex()
-    {
-        $requests = ClearanceRequest::with(['student.program', 'student.yearLevel'])
-            ->where('current_office', 'library_in_charge')
-            ->whereIn('status', ['pending', 'accepted', 'held'])
-            ->get();
-
-        return view('dashboard.library_in_charge.clearance_requests.index', compact('requests'));
-    }
-
-    public function libraryAccept($id)
-    {
-        $request = ClearanceRequest::findOrFail($id);
-        $type = $request->clearance->clearanceType->name;
-
-        if ($type === 'Financial Clearance') {
-            $this->moveFinancialToNextOffice($request);
-        } else {
-            $request->update([
-                'status' => 'pending',
-                'current_office' => 'dean',
-            ]);
-        }
-
-        return back()->with('success', 'Request approved by Library.');
-    }
-
-    public function libraryHold(Request $req, $id)
-    {
-        ClearanceRequest::findOrFail($id)->update([
-            'status' => 'held',
-            'hold_reason' => $req->hold_reason,
-        ]);
-
-        return back()->with('warning', 'Request put on hold.');
-    }
-
-    /* =========================================================
-     |  COMPLETED CLEARANCES
-     ========================================================= */
-    public function completedClearancesIndex()
-    {
-        $completedRequests = ClearanceRequest::with(['student.program', 'student.yearLevel'])
-            ->where('status', 'completed')
-            ->orderByDesc('updated_at')
-            ->get();
-
-        return view('dashboard.business_office.clearance_requests.completed', compact('completedRequests'));
+        return back()->with('warning', 'Request put on hold by College President.');
     }
 }

@@ -26,7 +26,8 @@
                         <tr>
                             <th>#</th>
                             <th>Clearance</th>
-                            <th>Description</th>
+                            <th>School Year</th>
+                            <th>Semester</th>
                             <th>Status / Action</th>
                         </tr>
                     </thead>
@@ -54,7 +55,8 @@
                                     <small class="text-muted">{{ $type }}</small>
                                 </td>
 
-                                <td>{{ $clearance->description ?? '—' }}</td>
+                                <td>{{ $clearance->school_year }}</td>
+                                <td>{{ $clearance->semester }}</td>
 
                                 <td>
 

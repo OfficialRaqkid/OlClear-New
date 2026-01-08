@@ -1,0 +1,4 @@
+- [x] Analyzed index.blade.php: Row already matches the provided <td> structure, keeping Actions column as requested
+- [x] Edited completed.blade.php to update the table header to include Department and Clearance Type columns
+- [x] Edited completed.blade.php to update the table row to use the provided <td> structure for the first 5 columns, keeping the remaining columns intact
+- [x] Task completed: All files in clearance_requests folder now have standardized table rows as requested

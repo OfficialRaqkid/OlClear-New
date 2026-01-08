@@ -27,38 +27,43 @@
                         <tr>
                             <th>#</th>
                             <th>Title</th>
-                            <th>Description</th>
+                            <th>Clearance Type</th>
+                            <th>School Year</th>
+                            <th>Semester</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($clearances as $clearance)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $clearance->title }}</td>
-                                <td>{{ $clearance->description ?? '—' }}</td>
-                                <td>
-                                    @if ($clearance->is_active)
-                                        <span class="badge bg-success">Active</span>
-                                    @else
-                                        <span class="badge bg-warning text-dark">Pending</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if (!$clearance->is_active)
-                                        <form action="{{ route('business_office.clearances.activate', $clearance->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-primary">
-                                                <i class="typcn typcn-upload"></i> Activate for Students
-                                            </button>
-                                        </form>
-                                    @else
-                                        <span class="text-muted">—</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
+                    @foreach ($clearances as $clearance)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $clearance->title }}</td>
+                        <td>{{ $clearance->clearanceType->name }}</td>
+                        <td>{{ $clearance->school_year }}</td>
+                        <td>{{ $clearance->semester }}</td>
+                        <td>
+                            @if ($clearance->is_active)
+                                <span class="badge bg-success">Active</span>
+                            @else
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if (!$clearance->is_active)
+                                <form action="{{ route('business_office.clearances.activate', $clearance->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-primary">
+                                        <i class="typcn typcn-upload"></i> Activate for Students
+                                    </button>
+                                </form>
+                            @else
+                                <span class="text-muted">—</span>
+                            @endif
+                        </td>
+                    </tr>
+                    @endforeach
+
                     </tbody>
                 </table>
             @endif

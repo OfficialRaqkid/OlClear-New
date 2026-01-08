@@ -8,7 +8,7 @@
         <div>
             <h2 class="az-dashboard-title">Create Clearance</h2>
             <p class="az-dashboard-text">
-                Select clearance type and offices.
+                Select clearance type, school year, and offices.
             </p>
         </div>
     </div>
@@ -46,6 +46,32 @@
                     readonly
                     required
                 >
+            </div>
+
+            {{-- School Year --}}
+            <div class="mb-4">
+                <label class="form-label fw-bold text-primary">School Year</label>
+                <input
+                    type="text"
+                    name="school_year"
+                    class="form-control form-control-lg border-primary shadow-sm"
+                    placeholder="2025-2026"
+                    required
+                >
+            </div>
+
+            {{-- Semester (HIDDEN FOR MARCHING) --}}
+            <div class="mb-4" id="semesterField">
+                <label class="form-label fw-bold text-primary">Semester</label>
+                <select
+                    name="semester"
+                    class="form-select form-select-lg border-primary shadow-sm"
+                >
+                    <option value="">-- Select Semester --</option>
+                    <option value="1st Semester">1st Semester</option>
+                    <option value="2nd Semester">2nd Semester</option>
+                    <option value="Summer">Summer</option>
+                </select>
             </div>
 
             {{-- Description --}}
@@ -86,15 +112,30 @@
         </form>
     </div>
 
-    {{-- FIXED AUTO-FILL --}}
-    <script>
-        document.getElementById('clearanceType').addEventListener('change', function () {
-            const option = this.options[this.selectedIndex];
-            const name = option.getAttribute('data-name');
+    {{-- LOGIC --}}
+<script>
+    const clearanceType = document.getElementById('clearanceType');
+    const titleInput = document.getElementById('clearanceTitle');
+    const semesterField = document.getElementById('semesterField');
+    const semesterSelect = semesterField.querySelector('select');
 
-            // ✅ EXACT NAME ONLY (NO DUPLICATE)
-            document.getElementById('clearanceTitle').value = name || '';
-        });
-    </script>
+    clearanceType.addEventListener('change', function () {
+        const option = this.options[this.selectedIndex];
+        const name = option.getAttribute('data-name');
+
+        // Auto-title
+        titleInput.value = name || '';
+
+        // Hide + disable semester for Marching
+        if (name && name.toLowerCase().includes('marching')) {
+            semesterField.style.display = 'none';
+            semesterSelect.value = '';
+            semesterSelect.disabled = true;
+        } else {
+            semesterField.style.display = 'block';
+            semesterSelect.disabled = false;
+        }
+    });
+</script>
 
 </x-master-layout>

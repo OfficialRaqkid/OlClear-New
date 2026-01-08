@@ -5,13 +5,14 @@
             <a href="" class="nav-link {{ request()->routeIs('registrar.dashboard') ? 'active' : '' }}">
                 <i class="typcn typcn-home"></i> Dashboard
             </a>
-            <a href="" class="nav-link {{ request()->routeIs('registrar.check-clearances') ? 'active' : '' }}">
-                <i class="typcn typcn-document"></i> Check Clearances
-            </a>
-            <a href="" class="nav-link {{ request()->routeIs('registrar.marching.index') ? 'active' : '' }}">
+            <a href="{{ route('registrar.clearances.index') }}" 
+                class="nav-link {{ request()->routeIs('registrar.clearances.index') ? 'active' : '' }}">
+                <i class="typcn typcn-document-add"></i> Sign Requests
+
+            <a href="{{ route('registrar.marching.index') }}" class="nav-link {{ request()->routeIs('registrar.marching.index') ? 'active' : '' }}">
                 <i class="typcn typcn-clipboard"></i> Clearance Requests
             </a>
-            <a href="" class="nav-link {{ request()->routeIs('registrar.reports') ? 'active' : '' }}">
+            <a href="{{ route('registrar.reports.completed') }}"  class="nav-link {{ request()->routeIs('registrar.reports.completed') ? 'active' : '' }}">
                 <i class="typcn typcn-chart-bar-outline"></i> Reports
             </a>
             <a href="" class="nav-link {{ request()->routeIs('registrar.profile') ? 'active' : '' }}">
