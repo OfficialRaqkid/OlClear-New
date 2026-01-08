@@ -13,18 +13,9 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('library_in_charge.clearances.index') }}"  class="nav-link">
+                    <a href="{{ route('library_in_charge.clearances.index') }}"  
+                    class="nav-link {{ request()->routeIs('library_in_charge.clearances.index') ? 'active' : '' }}">
                         <i class="typcn typcn-document-add"></i> Sign Requests
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="" class="nav-link">
-                        <i class="typcn typcn-time"></i> Clearance History
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="" class="nav-link">
-                        <i class="typcn typcn-chart-bar-outline"></i> Department Reports
                     </a>
                 </li>
             </ul>

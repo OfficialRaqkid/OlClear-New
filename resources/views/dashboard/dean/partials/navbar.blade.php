@@ -8,7 +8,7 @@
         <div class="az-header-menu">
             <ul class="nav">
                 <li class="nav-item active">
-                    <a href="" class="nav-link">
+                    <a href="{{ route('dean.dashboard') }}" class="nav-link {{ request()->routeIs('dean.dashboard') ? 'active' : '' }}">
                         <i class="typcn typcn-home-outline"></i> Dashboard
                     </a>
                 </li>

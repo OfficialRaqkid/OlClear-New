@@ -10,12 +10,6 @@
                 class="nav-link {{ request()->routeIs('vp_academic.clearances.index') ? 'active' : '' }}">
                 <i class="typcn typcn-document-add"></i> Attest Clearances
             </a>
-            <a href="" class="nav-link {{ request()->routeIs('vp_academic.logs') ? 'active' : '' }}">
-                <i class="typcn typcn-document"></i> Review Logs
-            </a>
-            <a href="" class="nav-link {{ request()->routeIs('vp_academic.profile') ? 'active' : '' }}">
-                <i class="typcn typcn-user-outline"></i> Profile
-            </a>
         </nav>
     </div>
 </div>

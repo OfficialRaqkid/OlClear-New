@@ -23,11 +23,6 @@
         class="nav-link {{ request()->routeIs('business_office.reports.completed') ? 'active' : '' }}">
           <i class="typcn typcn-chart-bar-outline"></i> Reports
       </a>
-      
-            </a>
-            <a href="" class="nav-link {{ request()->routeIs('dean.profile') ? 'active' : '' }}">
-                <i class="typcn typcn-user"></i> Profile
-            </a>
         </nav>
     </div>
 </div>

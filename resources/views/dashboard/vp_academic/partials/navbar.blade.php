@@ -19,11 +19,6 @@
                         <i class="typcn typcn-document-add"></i> Attest Clearances
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="" class="nav-link">
-                        <i class="typcn typcn-document-text"></i> Review Logs
-                    </a>
-                </li>
             </ul>
         </div>
 
